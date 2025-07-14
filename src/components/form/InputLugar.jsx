@@ -2,14 +2,11 @@ import React from "react";
 
 export default function Lugar({ value, onChange }) {
   const lugares = [
-    "Edificio A",
-    "Edificio B",
-    "Edificio C",
-    "Coordinación",
-    "Laboratorio 1",
-    "Laboratorio 2",
-    "Sala de juntas",
-    "Área de servidores",
+    "Cubículos",
+    "Cyber",
+    "Circulación",
+    "Oficinas",
+    "Capacitación"
   ];
 
   return (

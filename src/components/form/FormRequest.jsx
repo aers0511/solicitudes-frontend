@@ -11,10 +11,10 @@ import TextareaDescription from "./TextareaDescription";
 import TicketResult from "./TicketResult";
 
 import { generarFechaLimite } from "./utils";
-import { createTicket } from "../../js/api"; // importa la función aquí
+import { createTicket } from "../../js/api";
 
 export default function FormRequest() {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [personaSeleccionada, setPersonaSeleccionada] = useState("");
@@ -31,14 +31,13 @@ export default function FormRequest() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Protege el acceso si no hay usuario
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
   const handleFormChange = (field, value) => {
-    setFormData((f) => ({
-      ...f,
+    setFormData((prev) => ({
+      ...prev,
       [field]: value,
     }));
   };
@@ -48,21 +47,36 @@ export default function FormRequest() {
     setError("");
 
     if (!personaSeleccionada) {
-      setError("Selecciona a alguien.");
+      setError("Por favor selecciona una persona destinataria.");
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      setError("El campo Lugar es obligatorio.");
+      return;
+    }
+
+    if (!formData.issueType) {
+      setError("Selecciona el tipo de problema.");
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      setError("Describe el problema.");
       return;
     }
 
     const fechaLimite = generarFechaLimite();
 
-    const ticketGenerado = {
-      nombreSolicitante: user.name,
+    const nuevoTicket = {
+      nombreSolicitante: user.name || user.email,
       correoSolicitante: user.email,
       destinatario: personaSeleccionada,
       fechaLimite,
-      location: formData.location,
+      location: formData.location.trim(),
       persistentError: formData.persistentError,
       issueType: formData.issueType,
-      description: formData.description,
+      description: formData.description.trim(),
       archivoNombre: file ? file.name : null,
     };
 
@@ -70,12 +84,9 @@ export default function FormRequest() {
 
     try {
       const token = localStorage.getItem("token");
-
-      const createdTicket = await createTicket(token, ticketGenerado, file);
-
+      const createdTicket = await createTicket(token, nuevoTicket, file);
       setTicket(createdTicket);
 
-      // Limpia formulario
       setFormData({
         location: "",
         persistentError: false,
@@ -84,46 +95,42 @@ export default function FormRequest() {
       });
       setPersonaSeleccionada("");
       setFile(null);
+      setError("");
     } catch (err) {
-      setError(err.message || "Error al crear el ticket");
+      setError(err.message || "Error al crear el ticket. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-indigo-100 p-8 flex justify-center items-start">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-10 space-y-8 animate-fade-in">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-extrabold text-gradient bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-indigo-50 p-6 flex justify-center items-start">
+      <div className="bg-white rounded-3xl shadow-xl max-w-3xl w-full p-8 space-y-7 animate-fade-in">
+        <div className="flex justify-between items-center mb-7">
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-md">
             Registrar Solicitud
           </h1>
-
-          <button
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-            className="text-red-600/70 font-semibold hover:text-red-800 transition"
-          >
-            Cerrar sesión
-          </button>
         </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+          <div
+            role="alert"
+            className="bg-red-200 text-red-800 p-3 rounded-lg mb-5 text-sm font-semibold shadow-sm"
+          >
             {error}
           </div>
         )}
 
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-5"
+          noValidate
         >
           <div className="col-span-1 md:col-span-2">
             <SelectPersona
               value={personaSeleccionada}
               onChange={setPersonaSeleccionada}
+              className="text-base"
             />
           </div>
 
@@ -131,6 +138,7 @@ export default function FormRequest() {
             <InputLugar
               value={formData.location}
               onChange={(v) => handleFormChange("location", v)}
+              className="text-base"
             />
           </div>
 
@@ -138,6 +146,7 @@ export default function FormRequest() {
             <SelectIssueType
               value={formData.issueType}
               onChange={(v) => handleFormChange("issueType", v)}
+              className="text-base"
             />
           </div>
 
@@ -149,6 +158,8 @@ export default function FormRequest() {
             <TextareaDescription
               value={formData.description}
               onChange={(v) => handleFormChange("description", v)}
+              className="text-base"
+              rows={4}
             />
           </div>
 
@@ -157,13 +168,17 @@ export default function FormRequest() {
               checked={formData.persistentError}
               onChange={(v) => handleFormChange("persistentError", v)}
             />
+            <label className="text-gray-800 select-none text-base font-medium">
+              Error persistente
+            </label>
           </div>
 
           <div className="md:col-span-2">
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition shadow-lg disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white py-3 rounded-3xl font-bold text-lg hover:brightness-110 transition-shadow shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+              aria-busy={loading}
             >
               {loading ? "Creando ticket..." : "Crear ticket"}
             </button>
