@@ -104,3 +104,26 @@ export async function updateTicket(token, id, updateData) {
   }
   return res.json();
 }
+
+// --- Reporte mensual ---
+
+export async function downloadMonthlyReport(token) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // '01' a '12'
+
+  const res = await fetch(`${API_URL}/tickets/report?year=${year}&month=${month}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.msg || "Error al generar el reporte mensual");
+  }
+
+  // Retornamos el blob para que el frontend pueda manejar la descarga
+  return await res.blob();
+}

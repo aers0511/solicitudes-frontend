@@ -15,20 +15,22 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError("");
+    if (success) setSuccess("");
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
     setError("");
     setSuccess("");
 
     const { name, email, campus, password, confirmPassword } = form;
 
-    if (!name || !email || !campus || !password || !confirmPassword) {
+    if (!name.trim() || !email.trim() || !campus || !password || !confirmPassword) {
       setError("Todos los campos son obligatorios.");
       return;
     }
@@ -38,55 +40,65 @@ export default function Register() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, campus, password }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), campus, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.msg || "Error al registrar");
-        return;
+      } else {
+        setSuccess("Registro exitoso. Redirigiendo al login...");
+        setTimeout(() => navigate("/login"), 1500);
       }
-
-      setSuccess("Registro exitoso. Redirigiendo al login...");
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (e) {
-      setError("No se pudo conectar con el servidor.", e);
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-indigo-600 mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center  bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-extrabold text-indigo-700 mb-8 text-center">
           Registro de Usuario
         </h2>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+          <div
+            role="alert"
+            className="bg-red-100 border border-red-400 text-red-700 p-3 rounded-md mb-6 text-sm font-semibold"
+          >
             {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
+          <div
+            role="alert"
+            className="bg-green-100 border border-green-400 text-green-700 p-3 rounded-md mb-6 text-sm font-semibold"
+          >
             {success}
           </div>
         )}
 
-        <form onSubmit={handleRegister} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-5" noValidate>
           <input
             type="text"
             name="name"
             placeholder="Nombre completo"
             value={form.name}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
             required
+            autoComplete="name"
           />
 
           <input
@@ -95,18 +107,21 @@ export default function Register() {
             placeholder="Correo institucional"
             value={form.email}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
             required
+            autoComplete="email"
           />
 
           <select
             name="campus"
             value={form.campus}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
             required
           >
-            <option value="">Selecciona tu campus</option>
+            <option value="" disabled>
+              Selecciona tu campus
+            </option>
             <option value="Nainari">Náinari</option>
             <option value="Centro">Centro</option>
           </select>
@@ -117,8 +132,9 @@ export default function Register() {
             placeholder="Contraseña"
             value={form.password}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
             required
+            autoComplete="new-password"
           />
 
           <input
@@ -127,21 +143,25 @@ export default function Register() {
             placeholder="Confirmar contraseña"
             value={form.confirmPassword}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
             required
+            autoComplete="new-password"
           />
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+            disabled={loading}
+            className={`w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition ${
+              loading ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
-            Registrarse
+            {loading ? "Registrando..." : "Registrarse"}
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-center text-gray-500">
+        <p className="mt-6 text-center text-gray-600 text-sm">
           ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="text-indigo-600 hover:underline font-medium">
+          <Link to="/login" className="text-indigo-600 font-semibold hover:underline">
             Inicia sesión aquí
           </Link>
         </p>

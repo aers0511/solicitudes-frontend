@@ -104,7 +104,7 @@ export default function FormRequest() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-100 to-indigo-50 p-6 flex justify-center items-start">
+    <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-start">
       <div className="bg-white rounded-3xl shadow-xl max-w-3xl w-full p-8 space-y-7 animate-fade-in">
         <div className="flex justify-between items-center mb-7">
           <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-md">
@@ -168,9 +168,6 @@ export default function FormRequest() {
               checked={formData.persistentError}
               onChange={(v) => handleFormChange("persistentError", v)}
             />
-            <label className="text-gray-800 select-none text-base font-medium">
-              Error persistente
-            </label>
           </div>
 
           <div className="md:col-span-2">

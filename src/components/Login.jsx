@@ -8,6 +8,7 @@ export default function Login() {
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,8 +16,12 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     const result = await login(form.email, form.password);
+    setLoading(false);
+
     if (!result.success) {
       setError(result.message);
       return;
@@ -26,21 +31,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-indigo-600 mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center  bg-gray-100 px-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-10 space-y-6 animate-fade-in">
+
+        <h2 className="text-3xl font-extrabold text-center bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
           Iniciar Sesión
         </h2>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
+          <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm font-medium">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block mb-1 text-gray-600">
+            <label className="block mb-1 text-gray-700 font-medium">
               Correo institucional
             </label>
             <input
@@ -49,35 +55,62 @@ export default function Login() {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              placeholder="ejemplo@itson.edu.mx"
             />
           </div>
 
           <div>
-            <label className="block mb-1 text-gray-600">Contraseña</label>
+            <label className="block mb-1 text-gray-700 font-medium">
+              Contraseña
+            </label>
             <input
               type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition shadow-md flex justify-center items-center space-x-3 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Iniciar sesión
+            {loading && (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            )}
+            <span>{loading ? "Ingresando..." : "Iniciar sesión"}</span>
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-center text-gray-500">
+        <p className="mt-6 text-center text-gray-600 text-sm">
           ¿No tienes cuenta?{" "}
           <Link
             to="/register"
-            className="text-indigo-600 hover:underline font-medium"
+            className="text-indigo-600 font-semibold hover:underline"
           >
             Regístrate aquí
           </Link>

@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { getTickets, updateTicket } from "../js/api";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { getTickets, updateTicket, downloadMonthlyReport } from "../js/api";
 import { API_URL } from "../config";
 
 export default function TicketManager() {
+useContext(AuthContext);
   const [tickets, setTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [solucion, setSolucion] = useState({ comentario: "", archivo: null });
   const [vistaPrevia, setVistaPrevia] = useState(null);
+  const [mostrarSolucionados, setMostrarSolucionados] = useState(false);
+
   const token = localStorage.getItem("token");
-  const BACKEND_URL = API_URL;
 
   useEffect(() => {
     if (!token) return;
@@ -26,7 +29,6 @@ export default function TicketManager() {
   const handleArchivo = (e) => {
     const file = e.target.files[0];
     setSolucion((prev) => ({ ...prev, archivo: file }));
-
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onloadend = () => setVistaPrevia(reader.result);
@@ -42,14 +44,11 @@ export default function TicketManager() {
         status: "Solucionado",
         comment: solucion.comentario || "",
       };
-
       await updateTicket(token, ticket._id, updateData);
-
       alert(`Ticket solucionado y notificado a ${ticket.nombreSolicitante}`);
       setSelectedTicket(null);
       setSolucion({ comentario: "", archivo: null });
       setVistaPrevia(null);
-
       const data = await getTickets(token);
       setTickets(data);
     } catch (error) {
@@ -58,110 +57,64 @@ export default function TicketManager() {
     }
   };
 
+  const descargarCSV = async () => {
+    try {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+
+      const blob = await downloadMonthlyReport(token);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `tickets-${year}-${month}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al descargar reporte:", error);
+      alert("Error al descargar el reporte mensual");
+    }
+  };
+
+  const pendientes = tickets.filter((t) => t.status !== "Solucionado");
+  const solucionados = tickets.filter((t) => t.status === "Solucionado");
+
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold text-indigo-600 mb-6 text-center md:text-left">
-        Tickets asignados a ti
-      </h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold text-indigo-700">Gestión de Tickets</h1>
+        <button
+          onClick={descargarCSV}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          Descargar reporte del mes
+        </button>
+      </div>
 
-      {tickets.length === 0 ? (
-        <p className="text-gray-500 text-center">No hay tickets pendientes.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] table-auto border border-gray-300 shadow-md rounded-xl text-sm">
-            <thead className="bg-indigo-100 text-indigo-800">
-              <tr>
-                <th className="p-3 text-left whitespace-nowrap">Lugar</th>
-                <th className="p-3 whitespace-nowrap">Tipo</th>
-                <th className="p-3 text-center whitespace-nowrap">Error persistente</th>
-                <th className="p-3 whitespace-nowrap">Fecha límite</th>
-                <th className="p-3 text-center whitespace-nowrap">Archivo adjunto</th>
-                <th className="p-3 text-center whitespace-nowrap">Estado</th>
-                <th className="p-3 text-center whitespace-nowrap">Solucionado el</th>
-                <th className="p-3 text-center whitespace-nowrap">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((ticket) => (
-                <tr
-                  key={ticket._id}
-                  className="border-t hover:bg-indigo-50 transition"
-                >
-                  <td className="p-3 whitespace-nowrap">{ticket.location}</td>
-                  <td className="p-3 whitespace-nowrap">{ticket.issueType}</td>
-                  <td className="p-3 text-center">{ticket.persistentError ? "✅" : "❌"}</td>
-                  <td className="p-3 whitespace-nowrap">
-                    {new Date(ticket.fechaLimite).toLocaleDateString()}
-                  </td>
-                  <td className="p-3 text-center">
-                    {ticket.image ? (
-                      <img
-                        src={`${BACKEND_URL}/${ticket.image.replace(/^\/?uploads\//, "uploads/")}`}
-                        alt="Adjunto"
-                        className="max-h-16 mx-auto rounded"
-                      />
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="p-3 text-center">
-                    {ticket.status === "Solucionado" ? (
-                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium whitespace-nowrap">
-                        Solucionado
-                      </span>
-                    ) : (
-                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium whitespace-nowrap">
-                        Pendiente
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-3 text-center whitespace-nowrap">
-                    {ticket.status === "Solucionado" && ticket.updatedAt
-                      ? new Date(ticket.updatedAt).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td className="p-3 text-center whitespace-nowrap">
-                    <button
-                      className="text-indigo-700 font-semibold hover:underline"
-                      onClick={() => setSelectedTicket(ticket)}
-                    >
-                      Resolver
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
+      {/* Resolver Ticket */}
       {selectedTicket && (
-        <div className="mt-6 border-t pt-6 px-2 md:px-0">
-          <h2 className="text-2xl font-bold text-green-700 mb-4 text-center md:text-left">
-            Resolver Ticket
-          </h2>
-          <p className="text-gray-700 mb-2">
+        <div className="mb-8 border p-4 rounded-lg bg-gray-100 shadow-md animate-fade-in">
+          <h2 className="text-xl font-semibold text-green-700 mb-2">Resolver Ticket</h2>
+          <p className="text-gray-700 text-sm">
             <strong>Lugar:</strong> {selectedTicket.location}
           </p>
-          <p className="text-gray-700 mb-2">
+          <p className="text-gray-700 text-sm mb-3">
             <strong>Descripción:</strong> {selectedTicket.description}
           </p>
 
-          <label className="block text-sm font-medium text-gray-700 mt-4">
+          <label className="block text-sm font-medium text-gray-700 mt-3">
             Comentario de solución
           </label>
           <textarea
-            rows="4"
+            rows="3"
             value={solucion.comentario}
-            onChange={(e) =>
-              setSolucion((prev) => ({ ...prev, comentario: e.target.value }))
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 mt-1"
-          ></textarea>
+            onChange={(e) => setSolucion({ ...solucion, comentario: e.target.value })}
+            className="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-sm"
+          />
 
-          <label className="block text-sm font-medium text-gray-700 mt-4">
-            Subir archivo (opcional)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mt-3">Archivo (opcional)</label>
           <input
             type="file"
             accept="image/*,.pdf"
@@ -172,35 +125,121 @@ export default function TicketManager() {
             <img
               src={vistaPrevia}
               alt="Vista previa"
-              className="mt-3 max-w-sm border rounded shadow mx-auto md:mx-0"
+              className="mt-3 max-w-sm border rounded shadow"
             />
           )}
 
           <button
-            className="mt-6 w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg"
             onClick={() => marcarComoSolucionado(selectedTicket)}
+            className="mt-4 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded"
           >
             Marcar como solucionado
           </button>
-
-          {selectedTicket.comments && selectedTicket.comments.length > 0 && (
-            <div className="mt-10">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Comentarios de solución</h3>
-              <ul className="space-y-3">
-                {selectedTicket.comments.map((comment, i) => (
-                  <li key={i} className="bg-gray-100 p-4 rounded-md">
-                    <p className="text-gray-700 mb-1">{comment.text}</p>
-                    <div className="text-xs text-gray-500">
-                      Por <strong>{comment.author}</strong> el{" "}
-                      {new Date(comment.date).toLocaleString()}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
+
+      {/* Botones para alternar vistas */}
+      <div className="flex flex-wrap gap-4 mb-4">
+        <button
+          onClick={() => setMostrarSolucionados(false)}
+          className={`px-4 py-2 rounded text-sm font-semibold ${
+            !mostrarSolucionados
+              ? "bg-indigo-600 text-white"
+              : "bg-white text-indigo-600 border border-indigo-600"
+          }`}
+        >
+          Tickets Pendientes
+        </button>
+        <button
+          onClick={() => setMostrarSolucionados(true)}
+          className={`px-4 py-2 rounded text-sm font-semibold ${
+            mostrarSolucionados
+              ? "bg-indigo-600 text-white"
+              : "bg-white text-indigo-600 border border-indigo-600"
+          }`}
+        >
+          Tickets Solucionados
+        </button>
+      </div>
+
+      <TicketTable
+        tickets={mostrarSolucionados ? solucionados : pendientes}
+        onResolver={setSelectedTicket}
+        mostrarResolver={!mostrarSolucionados}
+      />
+    </div>
+  );
+}
+
+function TicketTable({ tickets, onResolver, mostrarResolver }) {
+  const BACKEND_URL = API_URL;
+
+  if (tickets.length === 0)
+    return (
+      <p className="text-gray-500 text-sm mb-4">No hay tickets para mostrar.</p>
+    );
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto border border-gray-200 text-sm shadow-sm rounded-lg">
+        <thead className="bg-indigo-100 text-indigo-800">
+          <tr>
+            <th className="p-2 text-left">Lugar</th>
+            <th className="p-2">Tipo</th>
+            <th className="p-2">Persistente</th>
+            <th className="p-2">Fecha Límite</th>
+            <th className="p-2">Archivo</th>
+            <th className="p-2">Solicitante</th>
+            <th className="p-2">Estado</th>
+            <th className="p-2">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tickets.map((ticket) => (
+            <tr key={ticket._id} className="border-t hover:bg-gray-50">
+              <td className="p-2">{ticket.location}</td>
+              <td className="p-2">{ticket.issueType}</td>
+              <td className="p-2 text-center">{ticket.persistentError ? "✅" : "❌"}</td>
+              <td className="p-2 text-center">{new Date(ticket.fechaLimite).toLocaleDateString()}</td>
+              <td className="p-2 text-center">
+                {ticket.image ? (
+                  <img
+                    src={`${BACKEND_URL}/${ticket.image.replace(/^\/?uploads\//, "uploads/")}`}
+                    alt="Adjunto"
+                    className="h-10 mx-auto rounded"
+                  />
+                ) : (
+                  "—"
+                )}
+              </td>
+              <td className="p-2">{ticket.nombreSolicitante}</td>
+              <td className="p-2 text-center">
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    ticket.status === "Solucionado"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {ticket.status}
+                </span>
+              </td>
+              <td className="p-2 text-center">
+                {mostrarResolver ? (
+                  <button
+                    className="text-indigo-700 font-semibold hover:underline text-sm"
+                    onClick={() => onResolver(ticket)}
+                  >
+                    Resolver
+                  </button>
+                ) : (
+                  "—"
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

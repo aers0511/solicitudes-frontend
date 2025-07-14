@@ -23,16 +23,19 @@ export default function Navbar() {
     ADMIN_EMAILS.includes(user.email.trim().toLowerCase());
 
   return (
-    <nav className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center relative">
+    <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center relative shadow-md">
       {/* Logo */}
       <div
-        className="cursor-pointer select-none"
+        className="cursor-pointer select-none flex items-center gap-2"
         onClick={() => {
           navigate("/");
           setMenuOpen(false);
         }}
       >
-        <img src="../../public/logo.png" alt="Logo MiApp" className="h-10 w-auto" />
+        <img src="/logo.png" alt="Logo MiApp" className="h-10 w-auto" />
+        <span className="font-semibold text-xl tracking-wide hidden md:block pl-5">
+          Soporte
+        </span>
       </div>
 
       {/* Botón hamburguesa */}
@@ -71,21 +74,22 @@ export default function Navbar() {
         className={`
           flex-col md:flex-row md:flex md:items-center
           absolute md:static top-full right-0 md:top-auto md:right-auto
-          bg-gray-800 md:bg-transparent
+          bg-gray-900 md:bg-transparent
           w-full md:w-auto
-          md:space-x-6
+          md:space-x-8
           ${menuOpen ? "flex" : "hidden"}
           md:flex
-          z-20
-          p-4 md:p-0
-          rounded-b-md md:rounded-none
-          shadow-md md:shadow-none
+          z-30
+          p-6 md:p-0
+          rounded-b-lg md:rounded-none
+          shadow-lg md:shadow-none
+          gap-4 md:gap-0
         `}
       >
         {user && (
           <>
-            <span className="block md:inline mb-2 md:mb-0 text-white font-medium">
-              Hola, {user.name || user.email}
+            <span className="block md:inline mb-4 md:mb-0 text-white font-medium px-2">
+              Hola, <span className="font-semibold">{user.name || user.email}</span>
             </span>
 
             {isAdmin && (
@@ -93,10 +97,10 @@ export default function Navbar() {
                 <NavLink
                   to="/form"
                   className={({ isActive }) =>
-                    `block md:inline px-2 py-1 rounded ${
+                    `block md:inline px-3 py-2 rounded-md transition-colors ${
                       isActive
                         ? "underline text-indigo-400"
-                        : "hover:underline"
+                        : "hover:underline hover:text-indigo-300"
                     }`
                   }
                   onClick={() => setMenuOpen(false)}
@@ -106,10 +110,10 @@ export default function Navbar() {
                 <NavLink
                   to="/admin/tickets"
                   className={({ isActive }) =>
-                    `block md:inline px-2 py-1 rounded ${
+                    `block md:inline px-3 py-2 rounded-md transition-colors ${
                       isActive
                         ? "underline text-indigo-400"
-                        : "hover:underline"
+                        : "hover:underline hover:text-indigo-300"
                     }`
                   }
                   onClick={() => setMenuOpen(false)}
@@ -121,7 +125,7 @@ export default function Navbar() {
 
             <button
               onClick={handleLogout}
-              className="mt-3 md:mt-0 bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition"
+              className="mt-2 md:mt-0 bg-red-600 px-4 py-2 rounded-md hover:bg-red-700 transition font-semibold"
             >
               Cerrar sesión
             </button>
