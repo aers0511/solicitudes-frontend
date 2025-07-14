@@ -1,8 +1,8 @@
 import React from "react";
 
 const fotoPorCorreo = {
-  "vvalenzuela@itson.edu.mx": "/src/assets/vic.jpg",
-  "angel.reyes@itson.edu.mx": "/src/assets/angel.jpg",
+  "vvalenzuela@itson.edu.mx": "/vic.jpg",
+  "angel.reyes@itson.edu.mx": "/angel.jpg",
 };
 
 const usuarios = [
