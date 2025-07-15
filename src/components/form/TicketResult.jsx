@@ -8,9 +8,6 @@ export default function TicketResult({ ticket }) {
       <h2 className="text-2xl font-semibold text-green-700 mb-4 flex items-center gap-2">
         ✅ Ticket generado correctamente
       </h2>
-      <pre className="text-gray-800 whitespace-pre-wrap rounded-md bg-white p-4 max-h-72 overflow-auto shadow-inner">
-        {JSON.stringify(ticket, null, 2)}
-      </pre>
     </div>
   );
 }

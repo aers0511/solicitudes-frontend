@@ -13,6 +13,30 @@ import TicketResult from "./TicketResult";
 import { generarFechaLimite } from "./utils";
 import { createTicket } from "../../js/api";
 
+// ✅ Tipos de problema por persona
+const tiposPorPersona = {
+  "vvalenzuela@itson.edu.mx": [
+    "Paranetrizacion del SIB.",
+    "Otorgar permisos a PR.",
+    "Actualizacion masiva de usuarios.",
+    "Actualizacion individual de usuarios.",
+    "Alta de nuevos usuarios STAFF.",
+    "Inventario.",
+    "Capacitacion sobre operaciones del SIB.",
+    "Emision de reportes.",
+  ],
+  "angel.reyes@itson.edu.mx": [
+    "Fallas en equio de servicio.",
+    "Fallas en equipo personal.",
+    "Soporte a usuario.",
+    "Falla en equipo de impresion.",
+    "Fallas en servicio de internet.",
+    "Fallas en equipo de autoprestamo.",
+    "Solicitud de consumibles (toner, cargador, mouse, teclado, etc.).",
+    "Otro",
+  ],
+};
+
 export default function FormRequest() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -51,7 +75,10 @@ export default function FormRequest() {
       return;
     }
 
-    if (!formData.location.trim()) {
+    if (
+      personaSeleccionada !== "vvalenzuela@itson.edu.mx" &&
+      !formData.location.trim()
+    ) {
       setError("El campo Lugar es obligatorio.");
       return;
     }
@@ -73,7 +100,10 @@ export default function FormRequest() {
       correoSolicitante: user.email,
       destinatario: personaSeleccionada,
       fechaLimite,
-      location: formData.location.trim(),
+      location:
+        personaSeleccionada === "vvalenzuela@itson.edu.mx"
+          ? ""
+          : formData.location.trim(),
       persistentError: formData.persistentError,
       issueType: formData.issueType,
       description: formData.description.trim(),
@@ -129,23 +159,34 @@ export default function FormRequest() {
           <div className="col-span-1 md:col-span-2">
             <SelectPersona
               value={personaSeleccionada}
-              onChange={setPersonaSeleccionada}
+              onChange={(val) => {
+                setPersonaSeleccionada(val);
+                setFormData((prev) => ({
+                  ...prev,
+                  issueType: "",
+                  location: "",
+                }));
+              }}
               className="text-base"
             />
           </div>
 
-          <div className="md:col-span-2">
-            <InputLugar
-              value={formData.location}
-              onChange={(v) => handleFormChange("location", v)}
-              className="text-base"
-            />
-          </div>
+          {/* Mostrar el campo Lugar solo si no es Victor */}
+          {personaSeleccionada !== "vvalenzuela@itson.edu.mx" && (
+            <div className="md:col-span-2">
+              <InputLugar
+                value={formData.location}
+                onChange={(v) => handleFormChange("location", v)}
+                className="text-base"
+              />
+            </div>
+          )}
 
           <div className="md:col-span-2">
             <SelectIssueType
               value={formData.issueType}
               onChange={(v) => handleFormChange("issueType", v)}
+              options={tiposPorPersona[personaSeleccionada] || []}
               className="text-base"
             />
           </div>
