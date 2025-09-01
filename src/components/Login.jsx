@@ -35,7 +35,7 @@ export default function Login() {
       <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-10 space-y-6 animate-fade-in">
 
         <h2 className="text-3xl font-extrabold text-center bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
-          Iniciar Sesión
+          Inicia sesión con tu cuenta.
         </h2>
 
         {error && (

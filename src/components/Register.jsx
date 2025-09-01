@@ -124,9 +124,9 @@ export default function Register() {
             </option>
             <option value="Nainari">Náinari</option>
             <option value="Centro">Centro</option>
-            <option value="Centro">Navojoa</option>
-            <option value="Centro">Centro</option>
-            <option value="Centro">Empalme</option>
+            <option value="Navojoa">Navojoa</option>
+            <option value="Guaymas">Guaymas</option>
+            <option value="Empalme">Empalme</option>
           </select>
 
           <input
