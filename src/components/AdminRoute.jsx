@@ -10,7 +10,6 @@ export default function AdminRoute() {
   const { user } = useContext(AuthContext);
 
   const responsables = [
-    "vvalenzuela@itson.edu.mx",
     "angel.reyes@itson.edu.mx",
   ];
 

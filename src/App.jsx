@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 import { AuthContext, AuthProvider } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar"; // <-- importa Navbar
 import Login from "./components/Login";
@@ -31,7 +32,6 @@ function AdminRoute({ children }) {
   const { user } = React.useContext(AuthContext);
 
   const responsables = [
-    "vvalenzuela@itson.edu.mx",
     "angel.reyes@itson.edu.mx",
   ];
 

@@ -4,7 +4,7 @@ import { getTickets, updateTicket, downloadMonthlyReport } from "../js/api";
 import { API_URL } from "../config";
 
 export default function TicketManager() {
-useContext(AuthContext);
+  useContext(AuthContext);
   const [tickets, setTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [solucion, setSolucion] = useState({ comentario: "", archivo: null });
@@ -84,7 +84,7 @@ useContext(AuthContext);
   return (
     <div className="p-4 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-indigo-700">Gestión de Tickets</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Gestión de Tickets</h1>
         <button
           onClick={descargarCSV}
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
@@ -96,7 +96,9 @@ useContext(AuthContext);
       {/* Resolver Ticket */}
       {selectedTicket && (
         <div className="mb-8 border p-4 rounded-lg bg-gray-100 shadow-md animate-fade-in">
-          <h2 className="text-xl font-semibold text-green-700 mb-2">Resolver Ticket</h2>
+          <h2 className="text-xl font-semibold text-green-700 mb-2">
+            Resolver Ticket
+          </h2>
           <p className="text-gray-700 text-sm">
             <strong>Lugar:</strong> {selectedTicket.location}
           </p>
@@ -110,11 +112,15 @@ useContext(AuthContext);
           <textarea
             rows="3"
             value={solucion.comentario}
-            onChange={(e) => setSolucion({ ...solucion, comentario: e.target.value })}
+            onChange={(e) =>
+              setSolucion({ ...solucion, comentario: e.target.value })
+            }
             className="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-sm"
           />
 
-          <label className="block text-sm font-medium text-gray-700 mt-3">Archivo (opcional)</label>
+          <label className="block text-sm font-medium text-gray-700 mt-3">
+            Archivo (opcional)
+          </label>
           <input
             type="file"
             accept="image/*,.pdf"
@@ -144,8 +150,8 @@ useContext(AuthContext);
           onClick={() => setMostrarSolucionados(false)}
           className={`px-4 py-2 rounded text-sm font-semibold ${
             !mostrarSolucionados
-              ? "bg-indigo-600 text-white"
-              : "bg-white text-indigo-600 border border-indigo-600"
+              ? "bg-gray-900 text-white"
+              : "bg-white text-gray-900 border border-gray-900"
           }`}
         >
           Tickets Pendientes
@@ -154,8 +160,8 @@ useContext(AuthContext);
           onClick={() => setMostrarSolucionados(true)}
           className={`px-4 py-2 rounded text-sm font-semibold ${
             mostrarSolucionados
-              ? "bg-indigo-600 text-white"
-              : "bg-white text-indigo-600 border border-indigo-600"
+              ? "bg-gray-900 text-white"
+              : "bg-white text-gray-900 border border-gray-900"
           }`}
         >
           Tickets Solucionados
@@ -185,26 +191,35 @@ function TicketTable({ tickets, onResolver, mostrarResolver }) {
         <thead className="bg-indigo-100 text-indigo-800">
           <tr>
             <th className="p-2 text-left">Lugar</th>
-            <th className="p-2">Tipo</th>
-            <th className="p-2">Persistente</th>
-            <th className="p-2">Fecha Límite</th>
-            <th className="p-2">Archivo</th>
-            <th className="p-2">Solicitante</th>
-            <th className="p-2">Estado</th>
+            <th className="p-2 text-center">Tipo</th>
+            <th className="p-2 text-center">Persistente</th>
+            <th className="p-2 text-center">Fecha Límite</th>
+            <th className="p-2 text-center">Archivo</th>
+            <th className="p-2 text-center">Solicitante</th>
+            <th className="p-2 text-center">Estado</th>
             <th className="p-2">Acción</th>
           </tr>
         </thead>
         <tbody>
           {tickets.map((ticket) => (
             <tr key={ticket._id} className="border-t hover:bg-gray-50">
-              <td className="p-2">{ticket.location}</td>
-              <td className="p-2">{ticket.issueType}</td>
-              <td className="p-2 text-center">{ticket.persistentError ? "✅" : "❌"}</td>
-              <td className="p-2 text-center">{new Date(ticket.fechaLimite).toLocaleDateString()}</td>
+              <td className="p-2 text-center">{ticket.location}</td>
+              <td className="p-2 text-center">{ticket.issueType}</td>
+              <td className="p-2 text-center">
+                {ticket.persistentError ? "✅" : "❌"}
+              </td>
+              <td className="p-2 text-center">
+                {ticket.fechaLimite
+                  ? new Date(ticket.fechaLimite).toLocaleDateString()
+                  : "—"}
+              </td>
               <td className="p-2 text-center">
                 {ticket.image ? (
                   <img
-                    src={`${BACKEND_URL}/${ticket.image.replace(/^\/?uploads\//, "uploads/")}`}
+                    src={`${BACKEND_URL}/${ticket.image.replace(
+                      /^\/?uploads\//,
+                      "uploads/"
+                    )}`}
                     alt="Adjunto"
                     className="h-10 mx-auto rounded"
                   />

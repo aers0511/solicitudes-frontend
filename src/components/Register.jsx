@@ -67,7 +67,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center  bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-3xl font-extrabold text-indigo-700 mb-8 text-center">
+        <h2 className="text-3xl font-extrabold text-gray-700 mb-8 text-center">
           Registro de Usuario
         </h2>
 
@@ -96,7 +96,7 @@ export default function Register() {
             placeholder="Nombre completo"
             value={form.name}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
             autoComplete="name"
           />
@@ -107,7 +107,7 @@ export default function Register() {
             placeholder="Correo institucional"
             value={form.email}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
             autoComplete="email"
           />
@@ -116,7 +116,7 @@ export default function Register() {
             name="campus"
             value={form.campus}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
           >
             <option value="" disabled>
@@ -135,7 +135,7 @@ export default function Register() {
             placeholder="Contraseña"
             value={form.password}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
             autoComplete="new-password"
           />
@@ -146,7 +146,7 @@ export default function Register() {
             placeholder="Confirmar contraseña"
             value={form.confirmPassword}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-400 transition"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
             autoComplete="new-password"
           />
@@ -154,7 +154,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition ${
+            className={`w-full bg-gray-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-gray-700 transition ${
               loading ? "opacity-60 cursor-not-allowed" : ""
             }`}
           >
@@ -164,7 +164,7 @@ export default function Register() {
 
         <p className="mt-6 text-center text-gray-600 text-sm">
           ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="text-indigo-600 font-semibold hover:underline">
+          <Link to="/login" className="text-gray-600 font-semibold hover:underline">
             Inicia sesión aquí
           </Link>
         </p>

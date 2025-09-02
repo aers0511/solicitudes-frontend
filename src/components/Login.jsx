@@ -33,8 +33,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center  bg-gray-100 px-4">
       <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-10 space-y-6 animate-fade-in">
-
-        <h2 className="text-3xl font-extrabold text-center bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
+        <h2 className="text-3xl font-extrabold text-center bg-gray-900 bg-clip-text text-transparent drop-shadow-lg">
           Inicia sesión con tu cuenta.
         </h2>
 
@@ -55,7 +54,7 @@ export default function Login() {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               placeholder="ejemplo@itson.edu.mx"
             />
           </div>
@@ -70,7 +69,7 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
               placeholder="••••••••"
             />
           </div>
@@ -78,7 +77,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-indigo-700 transition shadow-md flex justify-center items-center space-x-3 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full bg-gray-900 text-white py-3 rounded-xl font-semibold text-lg hover:bg-gray-700 transition shadow-md flex justify-center items-center space-x-3 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading && (
               <svg
@@ -110,7 +109,7 @@ export default function Login() {
           ¿No tienes cuenta?{" "}
           <Link
             to="/register"
-            className="text-indigo-600 font-semibold hover:underline"
+            className="text-gray-900 font-semibold hover:underline"
           >
             Regístrate aquí
           </Link>

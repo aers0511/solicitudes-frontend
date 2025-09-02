@@ -3,7 +3,6 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate, NavLink } from "react-router-dom";
 
 const ADMIN_EMAILS = [
-  "vvalenzuela@itson.edu.mx",
   "angel.reyes@itson.edu.mx",
 ];
 

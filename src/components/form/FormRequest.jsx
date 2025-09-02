@@ -137,7 +137,7 @@ export default function FormRequest() {
     <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-start">
       <div className="bg-white rounded-3xl shadow-xl max-w-3xl w-full p-8 space-y-7 animate-fade-in">
         <div className="flex justify-between items-center mb-7">
-          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600 bg-clip-text text-transparent drop-shadow-md">
+          <h1 className="text-4xl font-extrabold bg-gray-900 bg-clip-text text-transparent drop-shadow-md">
             Registrar Solicitud
           </h1>
         </div>
@@ -215,10 +215,10 @@ export default function FormRequest() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 text-white py-3 rounded-3xl font-bold text-lg hover:brightness-110 transition-shadow shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-gray-900 text-white py-3 rounded-3xl font-bold text-lg hover:brightness-110 transition-shadow shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               aria-busy={loading}
             >
-              {loading ? "Creando ticket..." : "Crear ticket"}
+              {loading ? "Creando ticket..." : "Solicitar"}
             </button>
           </div>
         </form>
