@@ -1,19 +1,14 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 import SelectPersona from "./SelectPersona";
-import FileUploader from "./FileUploader";
 import InputLugar from "./InputLugar";
 import CheckboxPersistent from "./CheckboxPersistent";
-import SelectIssueType from "./SelectIssueType";
+import SelecttipoDeError from "./SelectIssueType";
 import TextareaDescription from "./TextareaDescription";
-import TicketResult from "./TicketResult";
-
-import { generarFechaLimite } from "./utils";
 import { createTicket } from "../../js/api";
 
-// ✅ Tipos de problema por persona
 const tiposPorPersona = {
   "vvalenzuela@itson.edu.mx": [
     "Paranetrizacion del SIB.",
@@ -42,28 +37,28 @@ export default function FormRequest() {
   const navigate = useNavigate();
 
   const [personaSeleccionada, setPersonaSeleccionada] = useState("");
-  const [ticket, setTicket] = useState(null);
-
   const [formData, setFormData] = useState({
     location: "",
-    persistentError: false,
-    issueType: "",
-    description: "",
+    persistente: false,
+    tipoDeError: "",
+    descripcion: "",
   });
 
-  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [ticketCreated, setTicketCreated] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
   const handleFormChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (field === "persistente") {
+      setFormData((prev) => ({ ...prev, [field]: !!value })); // asegurar boolean
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -83,48 +78,52 @@ export default function FormRequest() {
       return;
     }
 
-    if (!formData.issueType) {
+    if (!formData.tipoDeError) {
       setError("Selecciona el tipo de problema.");
       return;
     }
 
-    if (!formData.description.trim()) {
+    if (!formData.descripcion.trim()) {
       setError("Describe el problema.");
       return;
     }
 
-    const fechaLimite = generarFechaLimite();
+    const ubicacionFinal =
+      personaSeleccionada === "vvalenzuela@itson.edu.mx"
+        ? user.campus || "No especificado"
+        : formData.location.trim();
 
     const nuevoTicket = {
-      nombreSolicitante: user.name || user.email,
+      nombreSolicitante: user.nombre || user.email, // siempre nombre si existe
       correoSolicitante: user.email,
       destinatario: personaSeleccionada,
-      fechaLimite,
-      location:
-        personaSeleccionada === "vvalenzuela@itson.edu.mx"
-          ? ""
-          : formData.location.trim(),
-      persistentError: formData.persistentError,
-      issueType: formData.issueType,
-      description: formData.description.trim(),
-      archivoNombre: file ? file.name : null,
+      ubicacion: ubicacionFinal,
+      persistente: formData.persistente, // ya es boolean
+      tipoDeError: formData.tipoDeError,
+      descripcion: formData.descripcion.trim(),
     };
 
     setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
-      const createdTicket = await createTicket(token, nuevoTicket, file);
-      setTicket(createdTicket);
+      if (!token) throw new Error("Usuario no autenticado.");
 
+      const createdTicket = await createTicket(token, nuevoTicket);
+      setTicketCreated(createdTicket);
+      setShowAlert(true);
+
+      // Ocultar alerta automáticamente después de 3 segundos
+      setTimeout(() => setShowAlert(false), 3000);
+
+      // Limpiar formulario
       setFormData({
         location: "",
-        persistentError: false,
-        issueType: "",
-        description: "",
+        persistente: false,
+        tipoDeError: "",
+        descripcion: "",
       });
       setPersonaSeleccionada("");
-      setFile(null);
       setError("");
     } catch (err) {
       setError(err.message || "Error al crear el ticket. Intenta de nuevo.");
@@ -136,18 +135,19 @@ export default function FormRequest() {
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-start">
       <div className="bg-white rounded-3xl shadow-xl max-w-3xl w-full p-8 space-y-7 animate-fade-in">
-        <div className="flex justify-between items-center mb-7">
-          <h1 className="text-4xl font-extrabold bg-gray-900 bg-clip-text text-transparent drop-shadow-md">
-            Registrar Solicitud
-          </h1>
-        </div>
+        <h1 className="text-4xl font-extrabold mb-7 text-center">
+          Registrar Solicitud
+        </h1>
 
         {error && (
-          <div
-            role="alert"
-            className="bg-red-200 text-red-800 p-3 rounded-lg mb-5 text-sm font-semibold shadow-sm"
-          >
+          <div className="bg-red-200 text-red-800 p-3 rounded-lg mb-5 text-sm font-semibold shadow-sm">
             {error}
+          </div>
+        )}
+
+        {showAlert && ticketCreated && (
+          <div className="fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg animate-fade-in">
+            ✅ Ticket #{ticketCreated.numeroTicket} creado correctamente
           </div>
         )}
 
@@ -163,51 +163,42 @@ export default function FormRequest() {
                 setPersonaSeleccionada(val);
                 setFormData((prev) => ({
                   ...prev,
-                  issueType: "",
+                  tipoDeError: "",
                   location: "",
                 }));
               }}
-              className="text-base"
             />
           </div>
 
-          {/* Mostrar el campo Lugar solo si no es Victor */}
           {personaSeleccionada !== "vvalenzuela@itson.edu.mx" && (
             <div className="md:col-span-2">
               <InputLugar
                 value={formData.location}
                 onChange={(v) => handleFormChange("location", v)}
-                className="text-base"
               />
             </div>
           )}
 
           <div className="md:col-span-2">
-            <SelectIssueType
-              value={formData.issueType}
-              onChange={(v) => handleFormChange("issueType", v)}
+            <SelecttipoDeError
+              value={formData.tipoDeError}
+              onChange={(v) => handleFormChange("tipoDeError", v)}
               options={tiposPorPersona[personaSeleccionada] || []}
-              className="text-base"
             />
           </div>
 
           <div className="md:col-span-2">
-            <FileUploader file={file} setFile={setFile} />
-          </div>
-
-          <div className="md:col-span-2">
             <TextareaDescription
-              value={formData.description}
-              onChange={(v) => handleFormChange("description", v)}
-              className="text-base"
+              value={formData.descripcion}
+              onChange={(v) => handleFormChange("descripcion", v)}
               rows={4}
             />
           </div>
 
           <div className="flex items-center space-x-3 md:col-span-2">
             <CheckboxPersistent
-              checked={formData.persistentError}
-              onChange={(v) => handleFormChange("persistentError", v)}
+              checked={formData.persistente}
+              onChange={(v) => handleFormChange("persistente", v)}
             />
           </div>
 
@@ -222,8 +213,6 @@ export default function FormRequest() {
             </button>
           </div>
         </form>
-
-        <TicketResult ticket={ticket} />
       </div>
     </div>
   );

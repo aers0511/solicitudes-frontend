@@ -28,12 +28,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
+  // LOGIN
+  const login = async (email, contraseña) => {
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, contraseña }), // <-- cambiado aquí
       });
       const data = await res.json();
 
@@ -58,12 +59,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async ({ name, email, campus, password }) => {
+  // REGISTER
+  const register = async ({ nombre, email, campus, contraseña }) => {
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, campus, password }),
+        body: JSON.stringify({ nombre, email, campus, contraseña }), // <-- cambiado aquí
       });
       const data = await res.json();
 
@@ -89,3 +91,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+  

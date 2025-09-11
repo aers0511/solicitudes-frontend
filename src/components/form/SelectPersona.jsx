@@ -9,7 +9,7 @@ const usuarios = [
   {
     email: "vvalenzuela@itson.edu.mx",
     name: "Victor Hugo Valenzuela Beltran",
-    position: "Administrador ",
+    position: "Administrador",
   },
   {
     email: "angel.reyes@itson.edu.mx",
@@ -27,7 +27,6 @@ export default function SelectPersona({ value, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        required
         className="w-full rounded-lg border border-gray-300 shadow-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
       >
         <option value="">Selecciona a alguien</option>

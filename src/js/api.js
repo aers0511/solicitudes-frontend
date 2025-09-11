@@ -2,11 +2,11 @@ import { API_URL } from "../config";
 
 // --- Auth ---
 
-export async function login(email, password) {
+export async function login(email, contraseña) {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, contraseña }),
   });
 
   const data = await res.json();
@@ -14,11 +14,11 @@ export async function login(email, password) {
   return data.token;
 }
 
-export async function register({ name, email, campus, password }) {
+export async function register({ nombre, email, campus, contraseña }) {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, campus, password }),
+    body: JSON.stringify({ nombre, email, campus, contraseña }),
   });
 
   const data = await res.json();
@@ -40,27 +40,21 @@ export async function getProfile(token) {
 
 // --- Tickets ---
 
-export async function createTicket(token, ticketData, file) {
-  const formData = new FormData();
-
-  Object.entries(ticketData).forEach(([key, value]) => {
-    if (value !== null && value !== undefined) {
-      formData.append(key, value);
-    }
-  });
-
-  if (file) formData.append("file", file);
-
+export async function createTicket(token, ticketData) {
   const res = await fetch(`${API_URL}/tickets`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(ticketData),
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.msg || "Error creando ticket");
+    const data = await res.json();
+    throw new Error(data.msg || "Error creando ticket");
   }
+
   return res.json();
 }
 
@@ -110,20 +104,20 @@ export async function updateTicket(token, id, updateData) {
 export async function downloadMonthlyReport(token) {
   const now = new Date();
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // '01' a '12'
+  const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const res = await fetch(`${API_URL}/tickets/report?year=${year}&month=${month}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await fetch(
+    `${API_URL}/tickets/report?year=${year}&month=${month}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
 
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.msg || "Error al generar el reporte mensual");
   }
 
-  // Retornamos el blob para que el frontend pueda manejar la descarga
   return await res.blob();
 }

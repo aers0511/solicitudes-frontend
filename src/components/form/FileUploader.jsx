@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 
-export default function FileUploader({ file, setFile }) {
-  const [filePreview, setFilePreview] = useState(null);
+export default function FileUploader({ imagen, setImagen }) {
+  const [vistaPrevia, setVistaPrevia] = useState(null);
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile || null);
+    const archivoSeleccionado = e.target.files[0];
+    setImagen(archivoSeleccionado || null);
 
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
+    if (archivoSeleccionado && archivoSeleccionado.type.startsWith("image/")) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFilePreview(reader.result);
-      };
-      reader.readAsDataURL(selectedFile);
+      reader.onloadend = () => setVistaPrevia(reader.result);
+      reader.readAsDataURL(archivoSeleccionado);
     } else {
-      setFilePreview(null);
+      setVistaPrevia(null);
     }
   };
 
@@ -29,18 +27,18 @@ export default function FileUploader({ file, setFile }) {
         onChange={handleFileChange}
         className="w-full rounded-lg border border-gray-300 px-4 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
       />
-      {filePreview && (
+      {vistaPrevia && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-indigo-700 mb-1">Vista previa:</p>
           <img
-            src={filePreview}
+            src={vistaPrevia}
             alt="Vista previa"
             className="max-h-48 rounded-md shadow-md border"
           />
         </div>
       )}
-      {!filePreview && file && (
-        <p className="mt-2 text-gray-600 text-sm">Archivo: {file.name}</p>
+      {!vistaPrevia && imagen && (
+        <p className="mt-2 text-gray-600 text-sm">Archivo: {imagen.name}</p>
       )}
     </div>
   );

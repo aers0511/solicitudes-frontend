@@ -1,12 +1,12 @@
 import React from "react";
 
-export default function Lugar({ value, onChange }) {
+export default function InputLugar({ value, onChange }) {
   const lugares = [
     "Cubículos",
     "Cyber",
     "Circulación",
     "Oficinas",
-    "Capacitación"
+    "Capacitación",
   ];
 
   return (
@@ -18,7 +18,6 @@ export default function Lugar({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        required
       >
         <option value="">Selecciona un lugar</option>
         {lugares.map((lugar, index) => (
@@ -30,4 +29,3 @@ export default function Lugar({ value, onChange }) {
     </div>
   );
 }
-  

@@ -6,7 +6,8 @@ export default function Login() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  // Cambiamos 'password' por 'contraseña'
+  const [form, setForm] = useState({ email: "", contraseña: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,8 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    const result = await login(form.email, form.password);
+    // Se envía 'form.contraseña' en lugar de 'form.password'
+    const result = await login(form.email, form.contraseña);
     setLoading(false);
 
     if (!result.success) {
@@ -65,8 +67,8 @@ export default function Login() {
             </label>
             <input
               type="password"
-              name="password"
-              value={form.password}
+              name="contraseña" // Cambiado aquí
+              value={form.contraseña}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
