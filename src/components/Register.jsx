@@ -6,10 +6,10 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: "",
+    nombre: "",
     email: "",
     campus: "",
-    password: "",
+    contraseña: "",
     confirmPassword: "",
   });
 
@@ -18,7 +18,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
     if (success) setSuccess("");
   };
@@ -28,14 +29,14 @@ export default function Register() {
     setError("");
     setSuccess("");
 
-    const { name, email, campus, password, confirmPassword } = form;
+    const { nombre, email, campus, contraseña, confirmPassword } = form;
 
-    if (!name.trim() || !email.trim() || !campus || !password || !confirmPassword) {
+    if (!nombre.trim() || !email.trim() || !campus || !contraseña || !confirmPassword) {
       setError("Todos los campos son obligatorios.");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (contraseña !== confirmPassword) {
       setError("Las contraseñas no coinciden.");
       return;
     }
@@ -46,7 +47,12 @@ export default function Register() {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), campus, password }),
+        body: JSON.stringify({ 
+          nombre: nombre.trim(), 
+          email: email.trim(), 
+          campus, 
+          contraseña 
+        }),
       });
 
       const data = await res.json();
@@ -55,17 +61,20 @@ export default function Register() {
         setError(data.msg || "Error al registrar");
       } else {
         setSuccess("Registro exitoso. Redirigiendo al login...");
+        // Limpiar formulario
+        setForm({ nombre: "", email: "", campus: "", contraseña: "", confirmPassword: "" });
         setTimeout(() => navigate("/login"), 1500);
       }
-    } catch {
+    } catch (err) {
       setError("No se pudo conectar con el servidor.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
         <h2 className="text-3xl font-extrabold text-gray-700 mb-8 text-center">
           Registro de Usuario
@@ -92,9 +101,9 @@ export default function Register() {
         <form onSubmit={handleRegister} className="space-y-5" noValidate>
           <input
             type="text"
-            name="name"
+            name="nombre"
             placeholder="Nombre completo"
-            value={form.name}
+            value={form.nombre}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
@@ -131,9 +140,9 @@ export default function Register() {
 
           <input
             type="password"
-            name="password"
+            name="contraseña"
             placeholder="Contraseña"
-            value={form.password}
+            value={form.contraseña}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-gray-400 transition"
             required
